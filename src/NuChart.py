@@ -308,7 +308,8 @@ class NuChart():
                               for marker, label, color in 
                               zip(self.candidate_markers, self.candidate_labels,self.candidate_colors)]
     legend = plt.legend(handles=legend_elements, loc=loc,
-                        fontsize=self.legend_size, frameon=False, title=title)
+                        fontsize=self.legend_size, frameon=False,
+                        title=title, title_fontsize=self.legend_size+2)
     self.ax.add_artist(legend)
 
 
