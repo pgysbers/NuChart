@@ -257,39 +257,6 @@ class NuChart():
                   cmap=cmap, edgecolors='w', linewidth=self.edgewidth)
     self.legend1 = self._create_legend(cmap, years[::-1])
 
-  def plot_abinitio(self, cmap="viridis", years=[2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2025], year_max=None):
-    """
-    Plots the reach of ab initio methods through the years. 
-    Inputs:
-      - cmap (matplotlib.colormap): Colormap for the plot.
-      - years (list): Years to have included on the plot.
-    """
-    df = pd.read_csv(ROOT_DIR+'/Data/abinitiosummary.csv', on_bad_lines='warn')
-    df['n'] = df['a'] - df['z']
-    xlim = max(self.xlim, df['n'].max()+1)
-    ylim = max(self.ylim, df['z'].max()+1)
-    X = np.arange(0, xlim, 1)
-    Y = np.arange(0, ylim, 1)
-    Z = np.full([ylim, xlim], 0,dtype=float)
-
-    for j, y in enumerate(years[::-1]):
-      df_year = df[df['year'] <= y].copy()
-      coord_year = df_year[['z', 'n']].to_numpy()
-      for i in coord_year:
-        Z[i[0], i[1]] = j+0.5
-        if year_max and y > year_max:
-          Z[i[0], i[1]] = 0
-    Z[Z == 0] = np.nan
-
-    cmap = plt.get_cmap(cmap, len(years))
-    bounds = np.arange(len(years)+1)
-    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=len(years))
-
-
-    c = self.ax.pcolor(X, Y, Z, shading='nearest', norm=norm,
-                  cmap=cmap, edgecolors='w', linewidth=self.edgewidth)
-    self.add_legend_colormap(cmap, years[::-1])
-
 
   def add_legend_colormap(self, cmap, labels):
     try:
