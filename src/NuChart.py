@@ -226,7 +226,7 @@ class NuChart():
         text_autoremove(self.ax, text, self.xlim, self.ylim)
 
 
-  def plot_abinitio(self, cmap="viridis", years=[2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2025]):
+  def plot_abinitio(self, cmap="viridis", years=[2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2025], year_max=None):
     """
     Plots the reach of ab initio methods through the years. 
     Inputs:
@@ -241,11 +241,13 @@ class NuChart():
     Y = np.arange(0, ylim, 1)
     Z = np.full([ylim, xlim], 0,dtype=float)
 
-    for j, year in enumerate(years[::-1]):
-      df_year = df[df['year'] <= year].copy()
+    for j, y in enumerate(years[::-1]):
+      df_year = df[df['year'] <= y].copy()
       coord_year = df_year[['z', 'n']].to_numpy()
       for i in coord_year:
         Z[i[0], i[1]] = j+0.5
+        if year_max and y > year_max:
+          Z[i[0], i[1]] = 0
     Z[Z == 0] = np.nan
 
     cmap = plt.get_cmap(cmap, len(years))
@@ -255,7 +257,7 @@ class NuChart():
 
     c = self.ax.pcolor(X, Y, Z, shading='nearest', norm=norm,
                   cmap=cmap, edgecolors='w', linewidth=self.edgewidth)
-    self.legend1 = self._create_legend(cmap, years[::-1])
+    self.add_legend_colormap(cmap, years[::-1])
 
 
   def add_legend_colormap(self, cmap, labels):
