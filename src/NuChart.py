@@ -260,6 +260,35 @@ class NuChart():
     self.add_legend_colormap(cmap, years[::-1])
 
 
+  def plot_ncsm(self, cmap='nipy_spectral', Nmax=0):
+    df = pd.read_csv(ROOT_DIR+'/Data/ncsm_eMax08.csv', on_bad_lines='warn')
+    xlim = max(self.xlim, df['N'].max()+1)
+    ylim = max(self.ylim, df['Z'].max()+1)
+
+    X = np.arange(0, xlim, 1)
+    Y = np.arange(0, ylim, 1)
+    Z = np.full([ylim, xlim], 0, dtype=float)
+
+    df_Nmax = df[df['Nmax'] == Nmax].copy()
+    coord_Nmax = df_Nmax[['Z', 'N']].to_numpy()
+
+    for i, row in df_Nmax.iterrows():
+      z = row['Z']
+      n = row['N']
+      Z[n,z] = row['dim']
+
+    Z[Z<=0] = np.nan
+
+    cmap = plt.get_cmap(cmap, 9)
+    bounds = np.arange(9+1)
+    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=9)
+
+    c = self.ax.pcolor(X, Y, np.log10(Z), shading='nearest', norm=norm,
+                       cmap=cmap, edgecolors='w', linewidth=self.edgewidth)
+    self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(9)])
+    self.ax.set_title(f'No. of SDs for Nmax={Nmax}')
+
+
   def add_legend_colormap(self, cmap, labels):
     try:
       legend_elements = [Line2D([0], [0], marker='s', color='w', label=label,
