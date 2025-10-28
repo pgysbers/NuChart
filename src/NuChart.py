@@ -269,23 +269,25 @@ class NuChart():
     Y = np.arange(0, ylim, 1)
     Z = np.full([ylim, xlim], 0, dtype=float)
 
-    df_Nmax = df[df['Nmax'] == Nmax].copy()
+    df_Nmax = df[df['Nmax'] == Nmax].dropna().copy()
     coord_Nmax = df_Nmax[['Z', 'N']].to_numpy()
 
     for i, row in df_Nmax.iterrows():
-      z = row['Z']
-      n = row['N']
+      print(i,row)
+      z = int(row['Z'])
+      n = int(row['N'])
       Z[n,z] = row['dim']
 
     Z[Z<=0] = np.nan
 
-    cmap = plt.get_cmap(cmap, 9)
-    bounds = np.arange(9+1)
-    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=9)
+    max_magnitude = 10
+    cmap = plt.get_cmap(cmap, max_magnitude)
+    bounds = np.arange(max_magnitude+1)
+    norm = colors.BoundaryNorm(boundaries=bounds, ncolors=max_magnitude)
 
     c = self.ax.pcolor(X, Y, np.log10(Z), shading='nearest', norm=norm,
                        cmap=cmap, edgecolors='w', linewidth=self.edgewidth)
-    self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(9)])
+    self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(max_magnitude)])
     self.ax.set_title(f'No. of SDs for Nmax={Nmax}')
 
 
