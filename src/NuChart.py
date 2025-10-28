@@ -273,7 +273,7 @@ class NuChart():
     coord_Nmax = df_Nmax[['Z', 'N']].to_numpy()
 
     for i, row in df_Nmax.iterrows():
-      print(i,row)
+      # print(i,row)
       z = int(row['Z'])
       n = int(row['N'])
       Z[n,z] = row['dim']
