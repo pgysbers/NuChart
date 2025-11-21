@@ -302,13 +302,14 @@ class NuChart():
                         fontsize=self.legend_size, frameon=False)
     self.ax.add_artist(legend)
 
-  def add_candidate_legend(self):
+  def add_candidate_legend(self, title=None, loc='lower center'):
     legend_elements = [Line2D([0], [0], marker=marker, label=label,
                               color=color, markersize=15, linestyle='none') 
                               for marker, label, color in 
                               zip(self.candidate_markers, self.candidate_labels,self.candidate_colors)]
-    legend = plt.legend(handles=legend_elements, loc='lower center',
-                        fontsize=self.legend_size, frameon=False)
+    legend = plt.legend(handles=legend_elements, loc=loc,
+                        fontsize=self.legend_size, frameon=False,
+                        title=title, title_fontsize=self.legend_size+2)
     self.ax.add_artist(legend)
 
 
@@ -351,16 +352,16 @@ class NuChart():
     plt.savefig(name,
             bbox_inches='tight', dpi=dpi, pad_inches=0)
     
-  def highlight_candidates(self, candidates, marker="*", color="r", label = None, legend=True):
+  def highlight_candidates(self, candidates, marker="*", color="r", label = None, alpha=1, legend=True):
     Z_values, A_values = zip(*candidates)
     Z_values = np.array(Z_values)
     A_values = np.array(A_values)
     N_values = A_values-Z_values
-    self.candidate_colors.append(color)
-    self.candidate_markers.append(marker)
     if label:
+      self.candidate_colors.append(color)
+      self.candidate_markers.append(marker)
       self.candidate_labels.append(label)
-    self.ax.scatter(N_values, Z_values, marker=marker, color=color, zorder=30)
+    self.ax.scatter(N_values, Z_values, marker=marker, color=color, zorder=30, alpha=alpha)
     if legend:
       self.add_candidate_legend()
       
