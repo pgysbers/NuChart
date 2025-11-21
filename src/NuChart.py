@@ -5,6 +5,7 @@ import pandas as pd
 from PIL import Image, ImageFilter
 from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.markers import MarkerStyle
 import io
 import os
 # Finds the absolute path where the file is installed is installed
@@ -365,7 +366,35 @@ class NuChart():
     if legend:
       self.add_candidate_legend()
       
-    
+  def plot_HardyTowner(self, HT15=True, HT23=True, NeqZ=True):
+    candidates_HT15_parent = [(6,10), (8,14), (12,22), (13,26), (14,26), (17,34), (18,34), (19,38), (20,38), (21,42), (23,46), (25,50), (27,54), (31,62), (37,74) ] 
+    candidates_HT15_daught = [(5,10), (7,14), (11,22), (12,26), (13,26), (16,34), (17,34), (18,38), (19,38), (20,42), (22,46), (24,50), (26,54), (30,62), (36,74)] 
+    candidates_HT23_parent = candidates_HT15_parent + [(10,18), (16,30), (22,42), (24,46), (26,50), (28,54), (33,66), (35,70)]
+    candidates_HT23_daught = candidates_HT15_daught + [(9,18), (15,30), (21,42), (23,46), (25,50), (27,54), (32,66), (34,70)]
+
+    if NeqZ:
+      N = Z = np.linspace(0.5,self.ylim)
+      self.get_axis().plot(N,Z,'k--', label='$N=Z$')
+      self.get_axis().text(43,42,'$N=Z$')
+
+    if HT23:
+      mp = MarkerStyle(">", fillstyle='none')
+      mp._transform.rotate_deg(-45)
+      md = MarkerStyle("<", fillstyle='none')
+      md._transform.rotate_deg(-45)
+      self.highlight_candidates(candidates_HT23_parent, marker=mp, color='tab:orange', legend=False)
+      self.highlight_candidates(candidates_HT23_daught, marker=md, color='tab:blue', legend=False)
+
+    if HT15:
+      mp = MarkerStyle(">")
+      mp._transform.rotate_deg(-45)
+      md = MarkerStyle("<")
+      md._transform.rotate_deg(-45)
+      self.highlight_candidates(candidates_HT15_parent, marker=mp, color='tab:orange', label='Parent', legend=False)
+      self.highlight_candidates(candidates_HT15_daught, marker=md, color='tab:blue', label='Daughter', legend=False)
+
+    if any((HT15, HT23)):
+      self.add_candidate_legend(title='Super-Allowed Fermi Decays', loc='lower right')
 
 
 
