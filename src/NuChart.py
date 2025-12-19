@@ -287,7 +287,7 @@ class NuChart():
     norm = colors.BoundaryNorm(boundaries=bounds, ncolors=max_magnitude)
 
     c = self.ax.pcolor(X, Y, np.log10(Z), shading='nearest', norm=norm,
-                       cmap=cmap, edgecolors='w', linewidth=self.edgewidth)
+                       cmap=cmap, edgecolors='w', linewidth=self.edgewidth, alpha=0.5)
     self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(max_magnitude)])
     self.ax.set_title(f'No. of SDs for Nmax={Nmax}')
 
