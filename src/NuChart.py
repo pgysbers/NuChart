@@ -261,7 +261,7 @@ class NuChart():
     self.add_legend_colormap(cmap, years[::-1])
 
 
-  def plot_ncsm(self, cmap='nipy_spectral', Nmax=0):
+  def plot_ncsm(self, cmap='nipy_spectral', Nmax=0, pmax=None, nmax=None):
     df = pd.read_csv(ROOT_DIR+'/Data/ncsm_eMax08.csv', on_bad_lines='warn')
     xlim = max(self.xlim, df['N'].max()+1)
     ylim = max(self.ylim, df['Z'].max()+1)
@@ -272,12 +272,14 @@ class NuChart():
 
     df_Nmax = df[df['Nmax'] == Nmax].dropna().copy()
     coord_Nmax = df_Nmax[['Z', 'N']].to_numpy()
+    df_Nmax = pd.merge(df_Nmax, self.ame20, how='inner', on=['Z','N','A'], validate='one_to_one')
 
     for i, row in df_Nmax.iterrows():
-      # print(i,row)
       z = int(row['Z'])
       n = int(row['N'])
-      Z[n,z] = row['dim']
+      Z[z,n] = row['dim']
+      if z>pmax or n>nmax:
+        Z[z,n] = np.nan
 
     Z[Z<=0] = np.nan
 
@@ -287,7 +289,7 @@ class NuChart():
     norm = colors.BoundaryNorm(boundaries=bounds, ncolors=max_magnitude)
 
     c = self.ax.pcolor(X, Y, np.log10(Z), shading='nearest', norm=norm,
-                       cmap=cmap, edgecolors='w', linewidth=self.edgewidth, alpha=0.5)
+                       cmap=cmap, edgecolors='w', linewidth=self.edgewidth, alpha=0.8)
     self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(max_magnitude)])
     self.ax.set_title(f'No. of SDs for Nmax={Nmax}')
 
