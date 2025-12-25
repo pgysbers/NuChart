@@ -305,9 +305,9 @@ class NuChart():
                         fontsize=self.legend_size, frameon=False)
     self.ax.add_artist(legend)
 
-  def add_candidate_legend(self, title=None, loc='lower center'):
+  def add_candidate_legend(self, title=None, loc='lower center', **marker_opts):
     legend_elements = [Line2D([0], [0], marker=marker, label=label,
-                              color=color, markersize=15, linestyle='none') 
+                              color=color, markersize=15, linestyle='none', **marker_opts) 
                               for marker, label, color in 
                               zip(self.candidate_markers, self.candidate_labels,self.candidate_colors)]
     legend = plt.legend(handles=legend_elements, loc=loc,
@@ -355,7 +355,7 @@ class NuChart():
     plt.savefig(name,
             bbox_inches='tight', dpi=dpi, pad_inches=0)
     
-  def highlight_candidates(self, candidates, marker="*", color="r", label = None, alpha=1, legend=True):
+  def highlight_candidates(self, candidates, marker="*", color="r", label = None, alpha=1, legend=True, **marker_opts):
     Z_values, A_values = zip(*candidates)
     Z_values = np.array(Z_values)
     A_values = np.array(A_values)
@@ -364,9 +364,9 @@ class NuChart():
       self.candidate_colors.append(color)
       self.candidate_markers.append(marker)
       self.candidate_labels.append(label)
-    self.ax.scatter(N_values, Z_values, marker=marker, color=color, zorder=30, alpha=alpha)
+    self.ax.plot(N_values, Z_values, ls='', marker=marker, color=color, zorder=30, alpha=alpha, **marker_opts)
     if legend:
-      self.add_candidate_legend()
+      self.add_candidate_legend(**marker_opts)
       
   def plot_HardyTowner(self, HT15=True, HT23=True, NeqZ=True):
     candidates_HT15_parent = [(6,10), (8,14), (12,22), (13,26), (14,26), (17,34), (18,34), (19,38), (20,38), (21,42), (23,46), (25,50), (27,54), (31,62), (37,74) ] 
@@ -380,23 +380,25 @@ class NuChart():
       self.get_axis().text(43,42,'$N=Z$')
 
     if HT23:
-      mp = MarkerStyle(">", fillstyle='none')
-      mp._transform.rotate_deg(-45)
-      md = MarkerStyle("<", fillstyle='none')
-      md._transform.rotate_deg(-45)
-      self.highlight_candidates(candidates_HT23_parent, marker=mp, color='tab:orange', legend=False)
-      self.highlight_candidates(candidates_HT23_daught, marker=md, color='tab:blue', legend=False)
-
-    if HT15:
+      marker_opts = dict(markerfacecolor='white', markeredgecolor='gray')
       mp = MarkerStyle(">")
       mp._transform.rotate_deg(-45)
       md = MarkerStyle("<")
       md._transform.rotate_deg(-45)
-      self.highlight_candidates(candidates_HT15_parent, marker=mp, color='tab:orange', label='Parent', legend=False)
-      self.highlight_candidates(candidates_HT15_daught, marker=md, color='tab:blue', label='Daughter', legend=False)
+      self.highlight_candidates(candidates_HT23_parent, marker=mp, legend=False, **marker_opts)
+      self.highlight_candidates(candidates_HT23_daught, marker=md, legend=False, **marker_opts)
+
+    if HT15:
+      marker_opts = dict(markerfacecolor='white', markeredgecolor='black')
+      mp = MarkerStyle(">")
+      mp._transform.rotate_deg(-45)
+      md = MarkerStyle("<")
+      md._transform.rotate_deg(-45)
+      self.highlight_candidates(candidates_HT15_parent, marker=mp, color='white', label='Parent', legend=False, **marker_opts)
+      self.highlight_candidates(candidates_HT15_daught, marker=md, color='white', label='Daughter', legend=False, **marker_opts)
 
     if any((HT15, HT23)):
-      self.add_candidate_legend(title='Super-Allowed Fermi Decays', loc='lower right')
+      self.add_candidate_legend(title='Super-Allowed Fermi Decays', loc='lower right', **marker_opts)
 
 
 
