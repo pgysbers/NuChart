@@ -8,7 +8,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.markers import MarkerStyle
 import io
 import os
-# Finds the absolute path where the file is installed is installed
+# Finds the absolute path where the file is installed
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -198,7 +198,7 @@ class NuChart():
                       Line2D([0], [0], marker='s', color='w', label='AME 2020 (extrapolated)',
                               markerfacecolor='gainsboro', markersize=15, linestyle='none')]
     base_legend = plt.legend(handles=legend_elements, loc='upper left',
-              fontsize=self.legend_size, frameon=False)
+              fontsize=self.legend_size, frameon=True)
     self.ax.add_artist(base_legend)
 
 
@@ -222,7 +222,7 @@ class NuChart():
         self.ax.plot([n, n], [nmin, nmax],  color='darkgrey',
                 linestyle="--", lw=2, alpha=0.9, zorder=30)
         # if n >= minnlabel:
-        text = self.ax.text(n-4, nmin-2, f'N={n}', color='k', fontsize=10)
+        text = self.ax.text(n-2, nmin-2, f'N={n}', color='k', fontsize=10)
         # !!! get the extent of the text
         text_autoremove(self.ax, text, self.xlim, self.ylim)
 
@@ -261,7 +261,7 @@ class NuChart():
     self.add_legend_colormap(cmap, years[::-1])
 
 
-  def plot_ncsm(self, cmap='nipy_spectral', Nmax=0, pmax=None, nmax=None):
+  def plot_ncsm(self, cmap='nipy_spectral', Nmax=0, pmax=None, nmax=None, legend_loc='lower right'):
     df = pd.read_csv(ROOT_DIR+'/Data/ncsm_eMax08.csv', on_bad_lines='warn')
     xlim = max(self.xlim, df['N'].max()+1)
     ylim = max(self.ylim, df['Z'].max()+1)
@@ -290,19 +290,22 @@ class NuChart():
 
     c = self.ax.pcolor(X, Y, np.log10(Z), shading='nearest', norm=norm,
                        cmap=cmap, edgecolors='w', linewidth=self.edgewidth, alpha=0.8)
-    self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(max_magnitude)])
-    self.ax.set_title(f'No. of SDs for Nmax={Nmax}')
+    self.add_legend_colormap(cmap, [f'$10^{s}$' for s in range(max_magnitude)],
+                             loc=legend_loc, title='No. of SDs')
+    self.ax.set_title(f'Nmax={Nmax}')
 
 
-  def add_legend_colormap(self, cmap, labels):
+  def add_legend_colormap(self, cmap, labels, loc='lower right', title=None):
     try:
       legend_elements = [Line2D([0], [0], marker='s', color='w', label=label,
                                 markerfacecolor=cmap.colors[i], markersize=15, alpha=0.8, linestyle='none') for i, label in enumerate(labels)]
     except AttributeError:
       legend_elements = [Line2D([0], [0], marker='s', color='w', label=label,
                                 markerfacecolor=cmap(np.linspace(0, 1, cmap.N))[i], markersize=15, alpha=0.8, linestyle='none') for i, label in enumerate(labels)]
-    legend = plt.legend(handles=legend_elements, loc='lower right',
-                        fontsize=self.legend_size, frameon=False)
+    legend = plt.legend(handles=legend_elements, loc=loc,
+                        fontsize=self.legend_size, frameon=True, framealpha=1.0,
+                        title=title, title_fontsize=self.legend_size+2)
+    legend.set_zorder(30)
     self.ax.add_artist(legend)
 
   def add_candidate_legend(self, title=None, loc='lower center', **marker_opts):
@@ -311,7 +314,7 @@ class NuChart():
                               for marker, label, color in 
                               zip(self.candidate_markers, self.candidate_labels,self.candidate_colors)]
     legend = plt.legend(handles=legend_elements, loc=loc,
-                        fontsize=self.legend_size, frameon=False,
+                        fontsize=self.legend_size, frameon=True,
                         title=title, title_fontsize=self.legend_size+2)
     self.ax.add_artist(legend)
 
@@ -368,7 +371,7 @@ class NuChart():
     if legend:
       self.add_candidate_legend(**marker_opts)
       
-  def plot_HardyTowner(self, HT15=True, HT23=True, NeqZ=True):
+  def plot_HardyTowner(self, HT15=True, HT23=True, NeqZ=True, legend_loc='lower right'):
     candidates_HT15_parent = [(6,10), (8,14), (12,22), (13,26), (14,26), (17,34), (18,34), (19,38), (20,38), (21,42), (23,46), (25,50), (27,54), (31,62), (37,74) ] 
     candidates_HT15_daught = [(5,10), (7,14), (11,22), (12,26), (13,26), (16,34), (17,34), (18,38), (19,38), (20,42), (22,46), (24,50), (26,54), (30,62), (36,74)] 
     candidates_HT23_parent = candidates_HT15_parent + [(10,18), (16,30), (22,42), (24,46), (26,50), (28,54), (33,66), (35,70)]
@@ -376,8 +379,8 @@ class NuChart():
 
     if NeqZ:
       N = Z = np.linspace(0.5,self.ylim)
-      self.get_axis().plot(N,Z,'k--', label='$N=Z$')
-      self.get_axis().text(43,42,'$N=Z$')
+      self.get_axis().plot(N,Z,'k--', label='N=Z')
+      self.get_axis().text(42,41,'N=Z')
 
     if HT23:
       marker_opts = dict(markerfacecolor='white', markeredgecolor='gray')
@@ -398,7 +401,7 @@ class NuChart():
       self.highlight_candidates(candidates_HT15_daught, marker=md, color='white', label='Daughter', legend=False, **marker_opts)
 
     if any((HT15, HT23)):
-      self.add_candidate_legend(title='Super-Allowed Fermi Decays', loc='lower right', **marker_opts)
+      self.add_candidate_legend(title='Super-Allowed Fermi Decays', loc=legend_loc, **marker_opts)
 
 
 
